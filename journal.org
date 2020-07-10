@@ -1,0 +1,61 @@
+* weird behavior when defining lexical (?) scope vars
+  :PROPERTIES:
+  :CREATED:  [2020-07-10 Fri 13:44]
+  :END:
+
+x was previously set to be result of make-hash-table
+
+so if x is defined in the scope where you call foo it's taken, and if not you fallback to whatever
+was defined in the scope during definition of foo.
+
+#+BEGIN_SRC common-lisp
+AMOP-IMPL> (let ((x 0))
+             (defun foo ()
+               (print x)
+               (setf x (+ x 1))
+               x))
+WARNING: redefining AMOP-IMPL::FOO in DEFUN
+FOO
+AMOP-IMPL> (foo)
+
+#<HASH-TABLE :TEST EQ :COUNT 0 {1004FFB6B3}> ; Evaluation aborted on #<TYPE-ERROR expected-type: NUMBER
+             datum: #<HASH-TABLE :TEST EQ :COUNT 0 {1004FFB6B3}>>.
+AMOP-IMPL> (let ((y 0))
+             (defun foo ()
+               (print y)
+               (setf y (+ y 1))
+               y))
+
+WARNING: redefining AMOP-IMPL::FOO in DEFUN
+FOO
+AMOP-IMPL> (foo)
+
+0
+1
+AMOP-IMPL> (foo)
+
+1
+2
+AMOP-IMPL> (foo)
+
+2
+3
+AMOP-IMPL>
+#+END_SRC
+* setf vs setq
+  :PROPERTIES:
+  :CREATED:  [2020-07-10 Fri 13:48]
+  :END:
+
+#+BEGIN_QUOTE common-lisp
+;; setf vs. setq: https://stackoverflow.com/questions/869529/difference-between-set-setq-and-setf-in-common-lisp
+;; tldr: setf is a generic way to assign values to data structures, like you would in other languages:
+;; x.car := 42;     <==>      (setf (car x) 42)
+#+END_QUOTE
+
+
+for example, you can override how setf behaves for certain symbols;
+#+BEGIN_SRC common-lisp
+(defun (setf c/find-class) (new-value symbol)
+    (setf (gethash symbol class-table) new-value))
+#+END_SRC

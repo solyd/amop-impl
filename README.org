@@ -1,4 +1,7 @@
-* Amop-Impl 
+* Amop-Impl
+
+implementation of Closette library, according to the book "The Art of the Metaobject Protocol" by
+Gregor Kiczales, Jim des Rivieres, Daniel G. Bobrow (MIT press 1991)
 
 ** Usage
 
